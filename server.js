@@ -9,12 +9,17 @@ const io = require('socket.io')(server);
 var gpioState = false;
 
 // Setup gpio pin
-const PIN_NUMBER = 8;
+const PIN_NUMBER = 12;
 gpio.setup(PIN_NUMBER, gpio.DIR_OUT, function () {
   writeToPin(false);
 });
 
+var socketNum = 0;
+
 io.on('connection', function (socket) {
+  socketNum++;
+  socket.socketNum = socketNum;
+  console.log('Socket number ' + socket.socketNum + ' connected!');
 
   socket.emit('btnState', gpioState);
 
@@ -34,13 +39,15 @@ io.on('connection', function (socket) {
     }
   });
 
-
+  socket.on('disconnect', function () {
+    console.log('Socket number ' + socket.socketNum + ' disconnected.');
+  });
 
 });
 
 function writeToPin(on) {
   gpio.write(PIN_NUMBER, on, function (err) {
     if (err) throw err;
-    
+    console.log('Wrote ' + on + ' to pin');
   })
 }
