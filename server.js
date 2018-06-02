@@ -1,3 +1,4 @@
+const gpio = require('rpi-gpio');
 const express = require('express');
 const app = express();
 const server = app.listen(7000);
@@ -6,6 +7,12 @@ app.use(express.static('public'));
 const io = require('socket.io')(server);
 
 var gpioState = false;
+
+// Setup gpio pin
+const PIN_NUMBER = 8;
+gpio.setup(PIN_NUMBER, gpio.DIR_OUT, function () {
+  writeToPin(false);
+});
 
 io.on('connection', function (socket) {
 
@@ -32,5 +39,8 @@ io.on('connection', function (socket) {
 });
 
 function writeToPin(on) {
-  console.log('Written ' + on + " to pin");
+  gpio.write(PIN_NUMBER, on, function (err) {
+    if (err) throw err;
+    
+  })
 }
